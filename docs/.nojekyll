@@ -1,0 +1,8 @@
+This file disables Jekyll processing on GitHub Pages.
+
+Without it, Pages runs the site through Jekyll, which ignores any file or folder
+whose name begins with an underscore and can rewrite HTML in ways that break a
+self-contained single-file dashboard. The dashboard needs to be served exactly
+as committed, byte for byte.
+
+Empty content is fine; only the filename matters.

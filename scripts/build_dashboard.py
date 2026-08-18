@@ -378,8 +378,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, default=Path("data/raw"))
-    ap.add_argument("--template", type=Path,
-                    default=Path("reports/Flight_Operations_Dashboard.html"))
+    # docs/index.html is what GitHub Pages serves. The script patches the file
+    # in place, so there is exactly ONE copy of the dashboard in the repo —
+    # the live site and the committed artefact are the same bytes and cannot
+    # drift apart.
+    ap.add_argument("--template", type=Path, default=Path("docs/index.html"))
     ap.add_argument("--out", type=Path, default=None,
                     help="defaults to overwriting --template")
     ap.add_argument("--check-only", action="store_true",
