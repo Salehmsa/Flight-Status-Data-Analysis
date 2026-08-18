@@ -411,7 +411,7 @@
   </div>
 
   <footer>
-    <p class="ar" data-i18n="footer">المصدر: بيانات الرحلات الجوية الأمريكية 2015 (10 مطارات محورية) · لا تتوفر بيانات لشهر أكتوبر ضمن المجموعة</p>
+    <p class="ar" data-i18n="footer">المصدر: بيانات وزارة النقل الأمريكية 2015 (10 مطارات محورية) · أكتوبر غائب لأن المصدر يرمّز المطارات في ذلك الشهر بمعرّفات رقمية لا برموز IATA، فأسقطه الترشيح</p>
     <p>GENERATED · <span id="genDate"></span></p>
   </footer>
 </div>
@@ -445,7 +445,7 @@ const TR = {
   thFlights:  {ar:'عدد الرحلات', en:'Flights'},
   thOnTime:   {ar:'الالتزام بالمواعيد', en:'On-Time'},
   thDelay:    {ar:'متوسط تأخير الوصول', en:'Avg Arrival Delay'},
-  footer:     {ar:'المصدر: بيانات الرحلات الجوية الأمريكية 2015 (10 مطارات محورية) · لا تتوفر بيانات لشهر أكتوبر ضمن المجموعة', en:'Source: US Domestic Flight Data 2015 (10 hub airports) · October data not available in this dataset'},
+  footer:     {ar:'المصدر: بيانات وزارة النقل الأمريكية 2015 (10 مطارات محورية) · أكتوبر غائب لأن المصدر يرمّز المطارات في ذلك الشهر بمعرّفات رقمية لا برموز IATA، فأسقطه الترشيح', en:'Source: US DOT 2015 (10 hub airports) · October is absent because the source encodes airports numerically that month, not as IATA codes — our filter dropped it'},
 };
 function applyStaticText(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
