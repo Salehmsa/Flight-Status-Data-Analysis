@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ar" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مركز عمليات الرحلات الجوية | Flight Ops Intelligence 2015</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080D18;
+    --bg-2:#0B1220;
+    --panel:#0F1826;
+    --panel-2:#0D1523;
+    --border:#1C2740;
+    --border-soft:#161F33;
+    --text:#E9EEF7;
+    --text-dim:#8592AB;
+    --text-faint:#546077;
+    --teal:#2FE0C4;
+    --teal-dim:#1B7A6C;
+    --amber:#F5A524;
+    --red:#F0455C;
+    --blue:#5B8CFF;
+    --grid:rgba(255,255,255,0.055);
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(ellipse 1200px 700px at 15% -10%, rgba(47,224,196,0.07), transparent 60%),
+      radial-gradient(ellipse 1000px 600px at 100% 10%, rgba(91,140,255,0.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  .num{font-family:'IBM Plex Mono',monospace; font-feature-settings:"tnum";}
+  .ar{direction:rtl; text-align:right; unicode-bidi:isolate; transition:none;}
+  body.lang-en .ar{direction:ltr; text-align:left; unicode-bidi:normal;}
+  ::selection{background:var(--teal); color:#03110E;}
+
+  /* ---------- Layout shell ---------- */
+  .wrap{max-width:1400px; margin:0 auto; padding:28px 32px 80px;}
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:24px;
+    padding-bottom:22px; border-bottom:1px solid var(--border); margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:44px;height:44px;border-radius:10px;
+    background:linear-gradient(150deg, rgba(47,224,196,0.18), rgba(91,140,255,0.10));
+    border:1px solid var(--border-soft);
+    display:flex;align-items:center;justify-content:center;
+    position:relative; flex-shrink:0;
+  }
+  .brand-mark svg{width:24px;height:24px;}
+  .brand-text h1{font-size:20px; font-weight:700; letter-spacing:0.2px;}
+  .brand-text .sub{font-size:12.5px; color:var(--text-dim); margin-top:3px; font-family:'IBM Plex Mono',monospace; letter-spacing:0.3px;}
+  .header-meta{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .pill{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-dim);
+    border:1px solid var(--border-soft); padding:6px 12px; border-radius:100px;
+    display:flex; align-items:center; gap:7px; background:var(--panel-2);
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%; background:var(--teal); box-shadow:0 0 8px var(--teal); animation:blink 2.2s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  /* ---------- Language toggle ---------- */
+  .lang-toggle{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; letter-spacing:0.4px;
+    color:#03110E; background:var(--teal); border:none; padding:8px 16px; border-radius:100px;
+    cursor:pointer; display:flex; align-items:center; gap:8px; transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:0 0 0 0 rgba(47,224,196,0.4);
+  }
+  .lang-toggle:hover{transform:translateY(-1px); box-shadow:0 4px 14px rgba(47,224,196,0.25);}
+  .lang-toggle svg{width:14px;height:14px;}
+
+  /* ---------- KPI ticker (split-flap board) ---------- */
+  .kpi-board{
+    display:grid; grid-template-columns:repeat(6,1fr); gap:1px;
+    background:var(--border); border:1px solid var(--border); border-radius:var(--radius);
+    overflow:hidden; margin-bottom:26px;
+  }
+  .kpi-cell{
+    background:var(--panel); padding:18px 18px 16px;
+    display:flex; flex-direction:column; gap:6px; position:relative;
+  }
+  .kpi-cell .lbl{font-size:11px; color:var(--text-dim); letter-spacing:0.4px;}
+  .kpi-cell .val{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; letter-spacing:-0.5px;}
+  .kpi-cell .val small{font-size:14px; font-weight:500; color:var(--text-dim); margin-right:2px;}
+  .kpi-cell .delta{font-size:10.5px; font-family:'IBM Plex Mono',monospace;}
+  .kpi-cell.on-time .val{color:var(--teal);}
+  .kpi-cell.delayed .val{color:var(--amber);}
+  .kpi-cell.cancelled .val, .kpi-cell.diverted .val{color:var(--red);}
+  .kpi-cell::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, currentColor, transparent); opacity:0.5;
+  }
+
+  /* ---------- Section framing ---------- */
+  .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-bottom:16px;}
+  .panel{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .panel-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; gap:10px;}
+  .panel-head h2{font-size:14.5px; font-weight:600;}
+  .panel-head .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--teal); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:4px;}
+  .panel-head p.hint{font-size:11.5px; color:var(--text-faint); margin-top:3px;}
+  .col-4{grid-column:span 4;} .col-5{grid-column:span 5;} .col-6{grid-column:span 6;}
+  .col-7{grid-column:span 7;} .col-8{grid-column:span 8;} .col-12{grid-column:span 12;}
+  .col-3{grid-column:span 3;}
+
+  /* ---------- Radar Ops Map (signature) ---------- */
+  .radar-wrap{position:relative; display:flex; justify-content:center; align-items:center; padding:6px 0 2px;}
+  .radar-scope{position:relative; width:100%; max-width:520px; aspect-ratio:1/1;}
+  .radar-sweep{
+    position:absolute; inset:0; border-radius:50%; overflow:hidden;
+    -webkit-mask-image:radial-gradient(circle, black 98%, transparent 100%);
+    mask-image:radial-gradient(circle, black 98%, transparent 100%);
+  }
+  .radar-sweep::before{
+    content:""; position:absolute; inset:-10%;
+    background:conic-gradient(from 0deg, rgba(47,224,196,0.28), rgba(47,224,196,0) 26%, transparent 100%);
+    animation:sweep 6s linear infinite;
+  }
+  @keyframes sweep{to{transform:rotate(360deg);}}
+  .radar-legend{display:flex; justify-content:center; gap:18px; margin-top:14px; flex-wrap:wrap;}
+  .radar-legend .item{display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-dim); font-family:'IBM Plex Mono',monospace;}
+  .radar-legend .sw{width:9px;height:9px;border-radius:50%;}
+
+  .tooltip{
+    position:fixed; pointer-events:none; z-index:50; background:#0A1220; border:1px solid var(--border-soft);
+    border-radius:8px; padding:9px 12px; font-size:11.5px; color:var(--text); opacity:0; transform:translateY(4px);
+    transition:opacity .12s ease, transform .12s ease; box-shadow:0 8px 24px rgba(0,0,0,0.4); max-width:220px;
+  }
+  .tooltip.show{opacity:1; transform:translateY(0);}
+  .tooltip .t-title{font-family:'IBM Plex Mono',monospace; color:var(--teal); font-size:11px; margin-bottom:4px; font-weight:600;}
+  .tooltip .t-row{display:flex; justify-content:space-between; gap:14px; color:var(--text-dim); font-size:11px;}
+  .tooltip .t-row b{color:var(--text); font-family:'IBM Plex Mono',monospace; font-weight:500;}
+
+  /* ---------- Insight callouts ---------- */
+  .insight-list{display:flex; flex-direction:column; gap:10px;}
+  .insight{
+    display:flex; gap:10px; align-items:flex-start; padding:11px 12px; border-radius:10px;
+    background:var(--panel-2); border:1px solid var(--border-soft);
+  }
+  .insight .ic{width:20px;height:20px;flex-shrink:0; margin-top:1px;}
+  .insight .tx{font-size:12.5px; color:var(--text-dim); line-height:1.55;}
+  .insight .tx b{color:var(--text); font-weight:600;}
+
+  /* ---------- Legend / status chips ---------- */
+  .status-legend{display:flex; flex-direction:column; gap:10px; margin-top:16px;}
+  .status-row{display:flex; align-items:center; gap:10px; font-size:12px;}
+  .status-row .sw{width:10px;height:10px;border-radius:3px; flex-shrink:0;}
+  .status-row .name{color:var(--text-dim); flex:1;}
+  .status-row .amt{font-family:'IBM Plex Mono',monospace; color:var(--text); font-weight:500;}
+
+  /* ---------- Chart containers ---------- */
+  svg{display:block; overflow:visible;}
+  .bar-row{display:flex; align-items:center; gap:12px; padding:7px 0; cursor:pointer; border-radius:8px; transition:background .15s;}
+  .bar-row:hover{background:var(--panel-2);}
+  .bar-row.selected{background:rgba(47,224,196,0.08);}
+  .bar-row .rank{width:16px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint); text-align:center;}
+  .bar-row .name{width:150px; font-size:12px; color:var(--text); flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .bar-row .track{flex:1; height:9px; background:var(--panel-2); border-radius:5px; overflow:hidden; position:relative; border:1px solid var(--border-soft);}
+  .bar-row .fill{height:100%; border-radius:5px; transition:width .8s cubic-bezier(.2,.8,.2,1);}
+  .bar-row .val{width:56px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim); flex-shrink:0;}
+  .bar-row .sub{width:74px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint); flex-shrink:0;}
+
+  .toggle-group{display:flex; gap:4px; background:var(--panel-2); padding:3px; border-radius:8px; border:1px solid var(--border-soft);}
+  .toggle-group button{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim); background:transparent; border:none;
+    padding:5px 10px; border-radius:6px; cursor:pointer; letter-spacing:0.3px;
+  }
+  .toggle-group button.active{background:var(--teal); color:#03110E; font-weight:600;}
+
+  /* ---------- Table ---------- */
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  thead th{
+    text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-faint);
+    text-transform:uppercase; letter-spacing:0.6px; padding:0 10px 10px; font-weight:500; border-bottom:1px solid var(--border-soft);
+  }
+  body.lang-en thead th.ar{text-align:left;}
+  thead th.ar{text-align:right;}
+  tbody td{padding:9px 10px; border-bottom:1px solid var(--border-soft); color:var(--text-dim);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody td.route{color:var(--text); font-family:'IBM Plex Mono',monospace; font-weight:500;}
+  tbody td.num{text-align:left; font-family:'IBM Plex Mono',monospace;}
+  .mini-bar{width:60px; height:5px; background:var(--panel-2); border-radius:3px; overflow:hidden; display:inline-block; vertical-align:middle; margin-left:8px; border:1px solid var(--border-soft);}
+  .mini-bar i{display:block; height:100%; border-radius:3px;}
+
+  /* ---------- Detail card (airline select) ---------- */
+  .detail-card{
+    background:var(--panel-2); border:1px solid var(--border-soft); border-radius:10px; padding:16px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:4px;
+  }
+  .detail-card .d-item .l{font-size:10.5px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin-bottom:4px;}
+  .detail-card .d-item .v{font-size:18px; font-family:'IBM Plex Mono',monospace; font-weight:600;}
+
+  /* ---------- Footer ---------- */
+  footer{margin-top:26px; padding-top:18px; border-top:1px solid var(--border); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  footer p{font-size:11px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+
+  .axis-label{font-size:10px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .grid-line{stroke:var(--grid); stroke-width:1;}
+
+  @media (max-width:1100px){
+    .kpi-board{grid-template-columns:repeat(3,1fr);}
+    .col-4,.col-5,.col-6,.col-7,.col-8,.col-3{grid-column:span 12;}
+    .wrap{padding:20px 16px 60px;}
+    .detail-card{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:560px){
+    .kpi-board{grid-template-columns:repeat(2,1fr);}
+    header{align-items:flex-start;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .radar-sweep::before{animation:none;}
+    .pill .dot{animation:none;}
+    * {transition-duration:0.01ms !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2FE0C4" stroke-width="1.6"><path d="M2 16 L22 9 L22 12 L14 14.5 L14 19 L18 21 L18 22.5 L12 21.3 L6 22.5 L6 21 L10 19 L10 14.5 L2 12 Z"/></svg>
+      </div>
+      <div class="brand-text">
+        <h1 class="ar" data-i18n="title">مركز عمليات الرحلات الجوية</h1>
+        <div class="sub">FLIGHT OPS INTELLIGENCE · US DOMESTIC · FY2015</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="pill"><span class="dot"></span>DATA LIVE VIEW</div>
+      <div class="pill" id="pill-total">— FLIGHTS</div>
+      <div class="pill">10 HUB AIRPORTS · 14 CARRIERS</div>
+      <button class="lang-toggle" id="langToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#03110E" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg>
+        <span id="langToggleLabel">English</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- KPI BOARD -->
+  <div class="kpi-board" id="kpiBoard"></div>
+
+  <!-- ROW A: Radar map + status donut -->
+  <div class="grid">
+    <div class="panel col-7">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">HUB TRAFFIC RADAR</div>
+          <h2 class="ar" data-i18n="radarTitle">خريطة رادار المحاور الجوية العشرة</h2>
+          <p class="hint ar" data-i18n="radarHint">حجم النقطة = عدد الرحلات · لون النقطة = نسبة الالتزام بالمواعيد · الخطوط = أعلى المسارات ازدحاماً</p>
+        </div>
+      </div>
+      <div class="radar-wrap">
+        <div class="radar-scope" id="radarScope"></div>
+      </div>
+      <div class="radar-legend">
+        <div class="item"><span class="sw" style="background:var(--teal)"></span>ON-TIME ≥ 80%</div>
+        <div class="item"><span class="sw" style="background:var(--amber)"></span>ON-TIME 76–80%</div>
+        <div class="item"><span class="sw" style="background:var(--red)"></span>ON-TIME &lt; 76%</div>
+      </div>
+    </div>
+
+    <div class="panel col-5">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">FLIGHT STATUS SPLIT</div>
+          <h2 class="ar" data-i18n="statusTitle">توزيع حالة الرحلات</h2>
+        </div>
+      </div>
+      <div id="statusDonut" style="display:flex; justify-content:center; padding:6px 0;"></div>
+      <div class="status-legend" id="statusLegend"></div>
+    </div>
+  </div>
+
+  <!-- ROW B: Monthly trend + delay causes -->
+  <div class="grid">
+    <div class="panel col-8">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">SEASONAL PERFORMANCE</div>
+          <h2 class="ar" data-i18n="monthlyTitle">اتجاه الالتزام بالمواعيد شهرياً</h2>
+        </div>
+      </div>
+      <div id="monthlyChart"></div>
+    </div>
+    <div class="panel col-4">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">ROOT CAUSE MIX</div>
+          <h2 class="ar" data-i18n="causesTitle">توزيع أسباب دقائق التأخير</h2>
+        </div>
+      </div>
+      <div id="causesChart"></div>
+    </div>
+  </div>
+
+  <!-- ROW C: Airline ranking -->
+  <div class="grid">
+    <div class="panel col-12">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">CARRIER SCORECARD</div>
+          <h2 class="ar" data-i18n="airlineTitle">ترتيب شركات الطيران حسب نسبة الالتزام بالمواعيد</h2>
+          <p class="hint ar" data-i18n="airlineHint">اضغط على أي شركة طيران لعرض تفاصيلها الكاملة</p>
+        </div>
+        <div class="num" style="font-size:11px; color:var(--text-faint);" id="airlineHeadRight">TOTAL · ON-TIME · AVG DELAY</div>
+      </div>
+      <div id="airlineChart"></div>
+      <div class="detail-card" id="airlineDetail"></div>
+    </div>
+  </div>
+
+  <!-- ROW D: DOW + Hourly + Distance -->
+  <div class="grid">
+    <div class="panel col-4">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">WEEKLY PATTERN</div>
+          <h2 class="ar" data-i18n="dowTitle">الأداء حسب يوم الأسبوع</h2>
+        </div>
+      </div>
+      <div id="dowChart"></div>
+    </div>
+    <div class="panel col-4">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">HOURLY PATTERN</div>
+          <h2 class="ar" data-i18n="hourTitle">التأخير حسب ساعة الإقلاع</h2>
+        </div>
+        <div class="toggle-group" id="hourToggle">
+          <button data-m="delay" class="active">DELAY</button>
+          <button data-m="ontime">ON-TIME%</button>
+        </div>
+      </div>
+      <div id="hourChart"></div>
+    </div>
+    <div class="panel col-4">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">DISTANCE IMPACT</div>
+          <h2 class="ar" data-i18n="distTitle">الأداء حسب طول الرحلة</h2>
+        </div>
+      </div>
+      <div id="distChart"></div>
+    </div>
+  </div>
+
+  <!-- ROW E: Routes table + cancellations -->
+  <div class="grid">
+    <div class="panel col-8">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">TOP CORRIDORS</div>
+          <h2 class="ar" data-i18n="routesTitle">أكثر المسارات ازدحاماً بالرحلات</h2>
+        </div>
+      </div>
+      <table>
+        <thead><tr>
+          <th class="ar" data-i18n="thRoute">المسار</th><th class="ar" data-i18n="thFlights">عدد الرحلات</th><th class="ar" data-i18n="thOnTime">الالتزام بالمواعيد</th><th class="ar" data-i18n="thDelay">متوسط تأخير الوصول</th>
+        </tr></thead>
+        <tbody id="routesBody"></tbody>
+      </table>
+    </div>
+    <div class="panel col-4">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">CANCELLATION DRIVERS</div>
+          <h2 class="ar" data-i18n="cancelTitle">أسباب إلغاء الرحلات</h2>
+        </div>
+      </div>
+      <div id="cancelChart"></div>
+    </div>
+  </div>
+
+  <!-- ROW F: Insights -->
+  <div class="grid">
+    <div class="panel col-6">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">EXECUTIVE READ</div>
+          <h2 class="ar" data-i18n="insightsTitle">أبرز المؤشرات التنفيذية</h2>
+        </div>
+      </div>
+      <div class="insight-list" id="insightsList"></div>
+    </div>
+    <div class="panel col-6">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">RECOMMENDED ACTIONS</div>
+          <h2 class="ar" data-i18n="actionsTitle">توصيات تشغيلية مقترحة</h2>
+        </div>
+      </div>
+      <div class="insight-list" id="actionsList"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="ar" data-i18n="footer">المصدر: بيانات الرحلات الجوية الأمريكية 2015 (10 مطارات محورية) · لا تتوفر بيانات لشهر أكتوبر ضمن المجموعة</p>
+    <p>GENERATED · <span id="genDate"></span></p>
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = {"_meta": {"generated": "2026-08-16T11:13:35Z", "generator": "scripts/build_dashboard.py", "delay_threshold": 15, "rule": "Delayed when ARRIVAL_DELAY >= 15 (US DOT)", "otp_basis": "on_time_pct fields use the COMPLETED denominator, share_* fields use SCHEDULED", "baselines_ok": true}, "kpis": {"total_flights": 1949742, "completed_flights": 1916166, "on_time_flights": 1525904, "on_time_pct": 79.63, "on_time_pct_scheduled": 78.26, "delayed_pct": 20.37, "cancelled_pct": 1.47, "diverted_pct": 0.26, "disruption_pct": 21.74, "share_on_time": 78.26, "share_delayed": 20.02, "share_cancelled": 1.47, "share_diverted": 0.26, "avg_dep_delay": 10.93, "avg_arr_delay": 5.78, "median_arr_delay": -4.0, "avg_recovery": 5.08}, "monthly": [{"MONTH": 1, "total": 170475, "on_time": 129091, "delayed": 37866, "cancelled": 3148, "diverted": 370, "completed": 166957, "avg_arr_delay": 7.49, "avg_dep_delay": 11.07, "on_time_pct": 77.32, "on_time_pct_scheduled": 75.72, "cancelled_pct": 1.85}, {"MONTH": 2, "total": 155924, "on_time": 113311, "delayed": 35776, "cancelled": 6432, "diverted": 405, "completed": 149087, "avg_arr_delay": 8.94, "avg_dep_delay": 12.3, "on_time_pct": 76.0, "on_time_pct_scheduled": 72.67, "cancelled_pct": 4.13}, {"MONTH": 3, "total": 183066, "on_time": 143462, "delayed": 36128, "cancelled": 3060, "diverted": 416, "completed": 179590, "avg_arr_delay": 5.26, "avg_dep_delay": 10.05, "on_time_pct": 79.88, "on_time_pct_scheduled": 78.37, "cancelled_pct": 1.67}, {"MONTH": 4, "total": 176352, "on_time": 143051, "delayed": 31205, "cancelled": 1662, "diverted": 434, "completed": 174256, "avg_arr_delay": 3.47, "avg_dep_delay": 9.26, "on_time_pct": 82.09, "on_time_pct_scheduled": 81.12, "cancelled_pct": 0.94}, {"MONTH": 5, "total": 182502, "on_time": 142833, "delayed": 36951, "cancelled": 2112, "diverted": 606, "completed": 179784, "avg_arr_delay": 6.18, "avg_dep_delay": 11.24, "on_time_pct": 79.45, "on_time_pct_scheduled": 78.26, "cancelled_pct": 1.16}, {"MONTH": 6, "total": 185742, "on_time": 134847, "delayed": 46931, "cancelled": 3317, "diverted": 647, "completed": 181778, "avg_arr_delay": 11.26, "avg_dep_delay": 16.17, "on_time_pct": 74.18, "on_time_pct_scheduled": 72.6, "cancelled_pct": 1.79}, {"MONTH": 7, "total": 190548, "on_time": 146579, "delayed": 41871, "cancelled": 1550, "diverted": 548, "completed": 188450, "avg_arr_delay": 7.16, "avg_dep_delay": 12.75, "on_time_pct": 77.78, "on_time_pct_scheduled": 76.92, "cancelled_pct": 0.81}, {"MONTH": 8, "total": 188317, "on_time": 150019, "delayed": 36177, "cancelled": 1645, "diverted": 476, "completed": 186196, "avg_arr_delay": 4.87, "avg_dep_delay": 10.71, "on_time_pct": 80.57, "on_time_pct_scheduled": 79.66, "cancelled_pct": 0.87}, {"MONTH": 9, "total": 172409, "on_time": 148672, "delayed": 22806, "cancelled": 676, "diverted": 255, "completed": 171478, "avg_arr_delay": -0.5, "avg_dep_delay": 5.17, "on_time_pct": 86.7, "on_time_pct_scheduled": 86.23, "cancelled_pct": 0.39}, {"MONTH": 11, "total": 170582, "on_time": 140696, "delayed": 27815, "cancelled": 1715, "diverted": 356, "completed": 168511, "avg_arr_delay": 2.23, "avg_dep_delay": 8.28, "on_time_pct": 83.49, "on_time_pct_scheduled": 82.48, "cancelled_pct": 1.01}, {"MONTH": 12, "total": 173825, "on_time": 133343, "delayed": 36736, "cancelled": 3253, "diverted": 493, "completed": 170079, "avg_arr_delay": 7.3, "avg_dep_delay": 13.01, "on_time_pct": 78.4, "on_time_pct_scheduled": 76.71, "cancelled_pct": 1.87}], "airline": [{"AIRLINE": "DL", "total": 352114, "on_time": 300373, "delayed": 49847, "cancelled": 1217, "diverted": 677, "completed": 350220, "avg_arr_delay": 0.81, "avg_dep_delay": 7.8, "on_time_pct": 85.77, "on_time_pct_scheduled": 85.31, "cancelled_pct": 0.35, "name": "Delta Air Lines Inc."}, {"AIRLINE": "AA", "total": 296131, "on_time": 234028, "delayed": 56352, "cancelled": 4916, "diverted": 835, "completed": 290380, "avg_arr_delay": 4.25, "avg_dep_delay": 10.29, "on_time_pct": 80.59, "on_time_pct_scheduled": 79.03, "cancelled_pct": 1.66, "name": "American Airlines Inc."}, {"AIRLINE": "WN", "total": 276585, "on_time": 212086, "delayed": 60806, "cancelled": 3014, "diverted": 679, "completed": 272892, "avg_arr_delay": 6.48, "avg_dep_delay": 12.65, "on_time_pct": 77.72, "on_time_pct_scheduled": 76.68, "cancelled_pct": 1.09, "name": "Southwest Airlines Co."}, {"AIRLINE": "UA", "total": 259497, "on_time": 197117, "delayed": 58447, "cancelled": 3238, "diverted": 695, "completed": 255564, "avg_arr_delay": 7.71, "avg_dep_delay": 16.18, "on_time_pct": 77.13, "on_time_pct_scheduled": 75.96, "cancelled_pct": 1.25, "name": "United Air Lines Inc."}, {"AIRLINE": "OO", "total": 224404, "on_time": 171347, "delayed": 48143, "cancelled": 4189, "diverted": 725, "completed": 219490, "avg_arr_delay": 8.03, "avg_dep_delay": 10.05, "on_time_pct": 78.07, "on_time_pct_scheduled": 76.36, "cancelled_pct": 1.87, "name": "Skywest Airlines Inc."}, {"AIRLINE": "EV", "total": 195999, "on_time": 152126, "delayed": 39029, "cancelled": 4123, "diverted": 721, "completed": 191155, "avg_arr_delay": 7.2, "avg_dep_delay": 9.13, "on_time_pct": 79.58, "on_time_pct_scheduled": 77.62, "cancelled_pct": 2.1, "name": "Atlantic Southeast Airlines"}, {"AIRLINE": "MQ", "total": 118426, "on_time": 87075, "delayed": 25337, "cancelled": 5731, "diverted": 283, "completed": 112412, "avg_arr_delay": 6.56, "avg_dep_delay": 10.98, "on_time_pct": 77.46, "on_time_pct_scheduled": 73.53, "cancelled_pct": 4.84, "name": "American Eagle Airlines Inc."}, {"AIRLINE": "US", "total": 53461, "on_time": 43615, "delayed": 9211, "cancelled": 532, "diverted": 103, "completed": 52826, "avg_arr_delay": 2.6, "avg_dep_delay": 5.37, "on_time_pct": 82.56, "on_time_pct_scheduled": 81.58, "cancelled_pct": 1.0, "name": "US Airways Inc."}, {"AIRLINE": "NK", "total": 49482, "on_time": 32164, "delayed": 16320, "cancelled": 923, "diverted": 75, "completed": 48484, "avg_arr_delay": 18.17, "avg_dep_delay": 19.52, "on_time_pct": 66.34, "on_time_pct_scheduled": 65.0, "cancelled_pct": 1.87, "name": "Spirit Air Lines"}, {"AIRLINE": "F9", "total": 44135, "on_time": 31908, "delayed": 11949, "cancelled": 184, "diverted": 94, "completed": 43857, "avg_arr_delay": 13.3, "avg_dep_delay": 13.46, "on_time_pct": 72.75, "on_time_pct_scheduled": 72.3, "cancelled_pct": 0.42, "name": "Frontier Airlines Inc."}, {"AIRLINE": "VX", "total": 32887, "on_time": 26205, "delayed": 6435, "cancelled": 209, "diverted": 38, "completed": 32640, "avg_arr_delay": 5.92, "avg_dep_delay": 9.44, "on_time_pct": 80.28, "on_time_pct_scheduled": 79.68, "cancelled_pct": 0.64, "name": "Virgin America"}, {"AIRLINE": "AS", "total": 25678, "on_time": 22150, "delayed": 3406, "cancelled": 84, "diverted": 38, "completed": 25556, "avg_arr_delay": -0.17, "avg_dep_delay": 2.68, "on_time_pct": 86.67, "on_time_pct_scheduled": 86.26, "cancelled_pct": 0.33, "name": "Alaska Airlines Inc."}, {"AIRLINE": "B6", "total": 17575, "on_time": 13166, "delayed": 4174, "cancelled": 201, "diverted": 34, "completed": 17340, "avg_arr_delay": 7.55, "avg_dep_delay": 14.37, "on_time_pct": 75.93, "on_time_pct_scheduled": 74.91, "cancelled_pct": 1.14, "name": "JetBlue Airways"}, {"AIRLINE": "HA", "total": 3368, "on_time": 2544, "delayed": 806, "cancelled": 9, "diverted": 9, "completed": 3350, "avg_arr_delay": 6.53, "avg_dep_delay": 3.74, "on_time_pct": 75.94, "on_time_pct_scheduled": 75.53, "cancelled_pct": 0.27, "name": "Hawaiian Airlines Inc."}], "origin": [{"ORIGIN_AIRPORT": "ATL", "total": 346836, "on_time": 287044, "delayed": 56462, "cancelled": 2557, "diverted": 773, "completed": 343506, "avg_arr_delay": 3.05, "avg_dep_delay": 9.34, "on_time_pct": 83.56, "on_time_pct_scheduled": 82.76, "cancelled_pct": 0.74, "city": "Atlanta", "name": "Hartsfield-Jackson Atlanta International Airport", "lat": 33.64044, "lon": -84.42694}, {"ORIGIN_AIRPORT": "ORD", "total": 285884, "on_time": 209891, "delayed": 66663, "cancelled": 8548, "diverted": 782, "completed": 276554, "avg_arr_delay": 8.6, "avg_dep_delay": 14.15, "on_time_pct": 75.9, "on_time_pct_scheduled": 73.42, "cancelled_pct": 2.99, "city": "Chicago", "name": "Chicago O'Hare International Airport", "lat": 41.9796, "lon": -87.90446}, {"ORIGIN_AIRPORT": "DFW", "total": 239551, "on_time": 182169, "delayed": 50478, "cancelled": 6254, "diverted": 650, "completed": 232647, "avg_arr_delay": 6.92, "avg_dep_delay": 11.53, "on_time_pct": 78.3, "on_time_pct_scheduled": 76.05, "cancelled_pct": 2.61, "city": "Dallas-Fort Worth", "name": "Dallas/Fort Worth International Airport", "lat": 32.89595, "lon": -97.0372}, {"ORIGIN_AIRPORT": "DEN", "total": 196055, "on_time": 150071, "delayed": 43331, "cancelled": 2123, "diverted": 530, "completed": 193402, "avg_arr_delay": 7.19, "avg_dep_delay": 11.84, "on_time_pct": 77.6, "on_time_pct_scheduled": 76.55, "cancelled_pct": 1.08, "city": "Denver", "name": "Denver International Airport", "lat": 39.85841, "lon": -104.667}, {"ORIGIN_AIRPORT": "LAX", "total": 194673, "on_time": 151722, "delayed": 40281, "cancelled": 2164, "diverted": 506, "completed": 192003, "avg_arr_delay": 5.72, "avg_dep_delay": 10.67, "on_time_pct": 79.02, "on_time_pct_scheduled": 77.94, "cancelled_pct": 1.11, "city": "Los Angeles", "name": "Los Angeles International Airport", "lat": 33.94254, "lon": -118.40807}, {"ORIGIN_AIRPORT": "SFO", "total": 148008, "on_time": 115957, "delayed": 29534, "cancelled": 2148, "diverted": 369, "completed": 145491, "avg_arr_delay": 5.75, "avg_dep_delay": 11.19, "on_time_pct": 79.7, "on_time_pct_scheduled": 78.35, "cancelled_pct": 1.45, "city": "San Francisco", "name": "San Francisco International Airport", "lat": 37.619, "lon": -122.37484}, {"ORIGIN_AIRPORT": "PHX", "total": 146815, "on_time": 118125, "delayed": 27427, "cancelled": 902, "diverted": 361, "completed": 145552, "avg_arr_delay": 4.39, "avg_dep_delay": 8.67, "on_time_pct": 81.16, "on_time_pct_scheduled": 80.46, "cancelled_pct": 0.61, "city": "Phoenix", "name": "Phoenix Sky Harbor International Airport", "lat": 33.43417, "lon": -112.00806}, {"ORIGIN_AIRPORT": "IAH", "total": 146622, "on_time": 113329, "delayed": 30690, "cancelled": 2130, "diverted": 473, "completed": 144019, "avg_arr_delay": 7.38, "avg_dep_delay": 11.58, "on_time_pct": 78.69, "on_time_pct_scheduled": 77.29, "cancelled_pct": 1.45, "city": "Houston", "name": "George Bush Intercontinental Airport", "lat": 29.98047, "lon": -95.33972}, {"ORIGIN_AIRPORT": "LAS", "total": 133181, "on_time": 104712, "delayed": 27225, "cancelled": 936, "diverted": 308, "completed": 131937, "avg_arr_delay": 6.02, "avg_dep_delay": 10.95, "on_time_pct": 79.37, "on_time_pct_scheduled": 78.62, "cancelled_pct": 0.7, "city": "Las Vegas", "name": "McCarran International Airport", "lat": 36.08036, "lon": -115.15233}, {"ORIGIN_AIRPORT": "MSP", "total": 112117, "on_time": 92884, "delayed": 18171, "cancelled": 808, "diverted": 254, "completed": 111055, "avg_arr_delay": 1.97, "avg_dep_delay": 7.26, "on_time_pct": 83.64, "on_time_pct_scheduled": 82.85, "cancelled_pct": 0.72, "city": "Minneapolis", "name": "Minneapolis-Saint Paul International Airport", "lat": 44.88055, "lon": -93.21692}], "dow": [{"DOW": 0, "day_name": "Mon", "total": 291829, "on_time": 220544, "delayed": 63597, "cancelled": 6819, "diverted": 869, "completed": 284141, "avg_arr_delay": 8.16, "avg_dep_delay": 13.01, "on_time_pct": 77.62, "on_time_pct_scheduled": 75.57, "cancelled_pct": 2.34}, {"DOW": 1, "day_name": "Tue", "total": 283958, "on_time": 223871, "delayed": 55232, "cancelled": 4094, "diverted": 761, "completed": 279103, "avg_arr_delay": 5.28, "avg_dep_delay": 10.52, "on_time_pct": 80.21, "on_time_pct_scheduled": 78.84, "cancelled_pct": 1.44}, {"DOW": 2, "day_name": "Wed", "total": 288609, "on_time": 227747, "delayed": 56613, "cancelled": 3545, "diverted": 704, "completed": 284360, "avg_arr_delay": 5.16, "avg_dep_delay": 10.25, "on_time_pct": 80.09, "on_time_pct_scheduled": 78.91, "cancelled_pct": 1.23}, {"DOW": 3, "day_name": "Thu", "total": 288721, "on_time": 221199, "delayed": 62937, "cancelled": 3858, "diverted": 727, "completed": 284136, "avg_arr_delay": 7.26, "avg_dep_delay": 11.77, "on_time_pct": 77.85, "on_time_pct_scheduled": 76.61, "cancelled_pct": 1.34}, {"DOW": 4, "day_name": "Fri", "total": 284732, "on_time": 224264, "delayed": 57067, "cancelled": 2776, "diverted": 625, "completed": 281331, "avg_arr_delay": 5.57, "avg_dep_delay": 10.62, "on_time_pct": 79.72, "on_time_pct_scheduled": 78.76, "cancelled_pct": 0.97}, {"DOW": 5, "day_name": "Sat", "total": 233647, "on_time": 191829, "delayed": 38365, "cancelled": 2825, "diverted": 628, "completed": 230194, "avg_arr_delay": 2.44, "avg_dep_delay": 8.61, "on_time_pct": 83.33, "on_time_pct_scheduled": 82.1, "cancelled_pct": 1.21}, {"DOW": 6, "day_name": "Sun", "total": 278246, "on_time": 216450, "delayed": 56451, "cancelled": 4653, "diverted": 692, "completed": 272901, "avg_arr_delay": 5.96, "avg_dep_delay": 11.32, "on_time_pct": 79.31, "on_time_pct_scheduled": 77.79, "cancelled_pct": 1.67}], "hour": [{"Departure Hour": 0, "total": 9498, "on_time": 7624, "delayed": 1755, "cancelled": 97, "diverted": 22, "completed": 9379, "avg_arr_delay": 3.01, "avg_dep_delay": 8.71, "on_time_pct": 81.29, "on_time_pct_scheduled": 80.27, "cancelled_pct": 1.02}, {"Departure Hour": 1, "total": 3069, "on_time": 2400, "delayed": 620, "cancelled": 39, "diverted": 10, "completed": 3020, "avg_arr_delay": 5.16, "avg_dep_delay": 7.65, "on_time_pct": 79.47, "on_time_pct_scheduled": 78.2, "cancelled_pct": 1.27}, {"Departure Hour": 2, "total": 110, "on_time": 78, "delayed": 26, "cancelled": 6, "diverted": 0, "completed": 104, "avg_arr_delay": 14.03, "avg_dep_delay": 13.61, "on_time_pct": 75.0, "on_time_pct_scheduled": 70.91, "cancelled_pct": 5.45}, {"Departure Hour": 5, "total": 19579, "on_time": 17704, "delayed": 1533, "cancelled": 292, "diverted": 50, "completed": 19237, "avg_arr_delay": -4.0, "avg_dep_delay": 2.01, "on_time_pct": 92.03, "on_time_pct_scheduled": 90.42, "cancelled_pct": 1.49}, {"Departure Hour": 6, "total": 65072, "on_time": 57544, "delayed": 6526, "cancelled": 854, "diverted": 148, "completed": 64070, "avg_arr_delay": -2.62, "avg_dep_delay": 2.81, "on_time_pct": 89.81, "on_time_pct_scheduled": 88.43, "cancelled_pct": 1.31}, {"Departure Hour": 7, "total": 108018, "on_time": 93090, "delayed": 13370, "cancelled": 1263, "diverted": 295, "completed": 106460, "avg_arr_delay": -0.59, "avg_dep_delay": 4.16, "on_time_pct": 87.44, "on_time_pct_scheduled": 86.18, "cancelled_pct": 1.17}, {"Departure Hour": 8, "total": 133233, "on_time": 113165, "delayed": 17982, "cancelled": 1757, "diverted": 329, "completed": 131147, "avg_arr_delay": 0.41, "avg_dep_delay": 5.14, "on_time_pct": 86.29, "on_time_pct_scheduled": 84.94, "cancelled_pct": 1.32}, {"Departure Hour": 9, "total": 134498, "on_time": 110912, "delayed": 21514, "cancelled": 1698, "diverted": 374, "completed": 132426, "avg_arr_delay": 2.66, "avg_dep_delay": 7.32, "on_time_pct": 83.75, "on_time_pct_scheduled": 82.46, "cancelled_pct": 1.26}, {"Departure Hour": 10, "total": 144963, "on_time": 117861, "delayed": 24930, "cancelled": 1778, "diverted": 394, "completed": 142791, "avg_arr_delay": 3.66, "avg_dep_delay": 8.69, "on_time_pct": 82.54, "on_time_pct_scheduled": 81.3, "cancelled_pct": 1.23}, {"Departure Hour": 11, "total": 115756, "on_time": 92714, "delayed": 21332, "cancelled": 1385, "diverted": 325, "completed": 114046, "avg_arr_delay": 4.8, "avg_dep_delay": 10.14, "on_time_pct": 81.3, "on_time_pct_scheduled": 80.09, "cancelled_pct": 1.2}, {"Departure Hour": 12, "total": 120241, "on_time": 95093, "delayed": 23155, "cancelled": 1617, "diverted": 376, "completed": 118248, "avg_arr_delay": 5.5, "avg_dep_delay": 10.69, "on_time_pct": 80.42, "on_time_pct_scheduled": 79.09, "cancelled_pct": 1.34}, {"Departure Hour": 13, "total": 130442, "on_time": 101886, "delayed": 26458, "cancelled": 1719, "diverted": 379, "completed": 128344, "avg_arr_delay": 6.24, "avg_dep_delay": 11.0, "on_time_pct": 79.39, "on_time_pct_scheduled": 78.11, "cancelled_pct": 1.32}, {"Departure Hour": 14, "total": 103619, "on_time": 79532, "delayed": 22419, "cancelled": 1381, "diverted": 287, "completed": 101951, "avg_arr_delay": 7.27, "avg_dep_delay": 12.07, "on_time_pct": 78.01, "on_time_pct_scheduled": 76.75, "cancelled_pct": 1.33}, {"Departure Hour": 15, "total": 129999, "on_time": 99264, "delayed": 28656, "cancelled": 1718, "diverted": 361, "completed": 127920, "avg_arr_delay": 7.93, "avg_dep_delay": 13.03, "on_time_pct": 77.6, "on_time_pct_scheduled": 76.36, "cancelled_pct": 1.32}, {"Departure Hour": 16, "total": 107721, "on_time": 80827, "delayed": 24815, "cancelled": 1781, "diverted": 298, "completed": 105642, "avg_arr_delay": 8.62, "avg_dep_delay": 13.69, "on_time_pct": 76.51, "on_time_pct_scheduled": 75.03, "cancelled_pct": 1.65}, {"Departure Hour": 17, "total": 121294, "on_time": 89574, "delayed": 29387, "cancelled": 2045, "diverted": 288, "completed": 118961, "avg_arr_delay": 9.01, "avg_dep_delay": 14.47, "on_time_pct": 75.3, "on_time_pct_scheduled": 73.85, "cancelled_pct": 1.69}, {"Departure Hour": 18, "total": 100949, "on_time": 72268, "delayed": 26566, "cancelled": 1881, "diverted": 234, "completed": 98834, "avg_arr_delay": 11.07, "avg_dep_delay": 16.5, "on_time_pct": 73.12, "on_time_pct_scheduled": 71.59, "cancelled_pct": 1.86}, {"Departure Hour": 19, "total": 130387, "on_time": 94382, "delayed": 33644, "cancelled": 2055, "diverted": 306, "completed": 128026, "avg_arr_delay": 10.5, "avg_dep_delay": 15.42, "on_time_pct": 73.72, "on_time_pct_scheduled": 72.39, "cancelled_pct": 1.58}, {"Departure Hour": 20, "total": 99446, "on_time": 70771, "delayed": 26387, "cancelled": 2067, "diverted": 221, "completed": 97158, "avg_arr_delay": 10.7, "avg_dep_delay": 16.59, "on_time_pct": 72.84, "on_time_pct_scheduled": 71.17, "cancelled_pct": 2.08}, {"Departure Hour": 21, "total": 84237, "on_time": 62097, "delayed": 20208, "cancelled": 1744, "diverted": 188, "completed": 82305, "avg_arr_delay": 8.59, "avg_dep_delay": 14.24, "on_time_pct": 75.45, "on_time_pct_scheduled": 73.72, "cancelled_pct": 2.07}, {"Departure Hour": 22, "total": 62209, "on_time": 47183, "delayed": 13820, "cancelled": 1117, "diverted": 89, "completed": 61003, "avg_arr_delay": 6.18, "avg_dep_delay": 12.29, "on_time_pct": 77.35, "on_time_pct_scheduled": 75.85, "cancelled_pct": 1.8}, {"Departure Hour": 23, "total": 25402, "on_time": 19935, "delayed": 5159, "cancelled": 276, "diverted": 32, "completed": 25094, "avg_arr_delay": 4.42, "avg_dep_delay": 10.54, "on_time_pct": 79.44, "on_time_pct_scheduled": 78.48, "cancelled_pct": 1.09}], "distance": [{"Distance Band": "Medium Haul", "avg_distance": 872, "total": 967740, "on_time": 755221, "delayed": 196944, "cancelled": 12734, "diverted": 2841, "completed": 952165, "avg_arr_delay": 6.1, "avg_dep_delay": 11.47, "on_time_pct": 79.32, "on_time_pct_scheduled": 78.04, "cancelled_pct": 1.32}, {"Distance Band": "Short Haul", "avg_distance": 303, "total": 656554, "on_time": 512725, "delayed": 129573, "cancelled": 13105, "diverted": 1151, "completed": 642298, "avg_arr_delay": 6.39, "avg_dep_delay": 9.73, "on_time_pct": 79.83, "on_time_pct_scheduled": 78.09, "cancelled_pct": 2.0}, {"Distance Band": "Long Haul", "avg_distance": 2000, "total": 325448, "on_time": 257958, "delayed": 63745, "cancelled": 2731, "diverted": 1014, "completed": 321703, "avg_arr_delay": 3.61, "avg_dep_delay": 11.75, "on_time_pct": 80.19, "on_time_pct_scheduled": 79.26, "cancelled_pct": 0.84}], "delayband": [{"band": "On Time (<15)", "count": 1525904}, {"band": "Minor (15-45)", "count": 229939}, {"band": "Major (46-120)", "count": 121406}, {"band": "Severe (>120)", "count": 38917}, {"band": "N/A", "count": 33576}], "cancel_reason": [{"code": "B", "count": 16372, "desc": "Weather"}, {"code": "A", "count": 8084, "desc": "Airline/Carrier"}, {"code": "C", "count": 4112, "desc": "National Air System"}, {"code": "D", "count": 2, "desc": "Security"}], "causes": {"Air System": 4696308.0, "Security": 25717.0, "Airline": 7542717.0, "Late Aircraft": 8709198.0, "Weather": 1328155.0}, "causes_pct": {"Air System": 21.1, "Security": 0.1, "Airline": 33.8, "Late Aircraft": 39.1, "Weather": 6.0}, "routes": [{"ORIGIN_AIRPORT": "SFO", "DESTINATION_AIRPORT": "LAX", "total": 13744, "on_time": 9764, "avg_arr_delay": 11.44, "on_time_pct": 72.87, "origin_city": "San Francisco", "dest_city": "Los Angeles"}, {"ORIGIN_AIRPORT": "LAX", "DESTINATION_AIRPORT": "SFO", "total": 13457, "on_time": 9686, "avg_arr_delay": 10.74, "on_time_pct": 73.89, "origin_city": "Los Angeles", "dest_city": "San Francisco"}, {"ORIGIN_AIRPORT": "LAX", "DESTINATION_AIRPORT": "JFK", "total": 12015, "on_time": 9713, "avg_arr_delay": 0.61, "on_time_pct": 81.96, "origin_city": "Los Angeles", "dest_city": "JFK"}, {"ORIGIN_AIRPORT": "LAS", "DESTINATION_AIRPORT": "LAX", "total": 9715, "on_time": 6945, "avg_arr_delay": 11.97, "on_time_pct": 71.96, "origin_city": "Las Vegas", "dest_city": "Los Angeles"}, {"ORIGIN_AIRPORT": "LAX", "DESTINATION_AIRPORT": "LAS", "total": 9594, "on_time": 7375, "avg_arr_delay": 8.66, "on_time_pct": 77.45, "origin_city": "Los Angeles", "dest_city": "Las Vegas"}, {"ORIGIN_AIRPORT": "ORD", "DESTINATION_AIRPORT": "LGA", "total": 9575, "on_time": 6748, "avg_arr_delay": 10.29, "on_time_pct": 74.15, "origin_city": "Chicago", "dest_city": "LGA"}, {"ORIGIN_AIRPORT": "SFO", "DESTINATION_AIRPORT": "JFK", "total": 8440, "on_time": 6827, "avg_arr_delay": 2.14, "on_time_pct": 82.19, "origin_city": "San Francisco", "dest_city": "JFK"}, {"ORIGIN_AIRPORT": "LAX", "DESTINATION_AIRPORT": "ORD", "total": 8256, "on_time": 6518, "avg_arr_delay": 3.65, "on_time_pct": 80.16, "origin_city": "Los Angeles", "dest_city": "Chicago"}, {"ORIGIN_AIRPORT": "ATL", "DESTINATION_AIRPORT": "LGA", "total": 8234, "on_time": 6049, "avg_arr_delay": 7.94, "on_time_pct": 76.04, "origin_city": "Atlanta", "dest_city": "LGA"}, {"ORIGIN_AIRPORT": "ATL", "DESTINATION_AIRPORT": "MCO", "total": 8202, "on_time": 6714, "avg_arr_delay": 5.49, "on_time_pct": 82.4, "origin_city": "Atlanta", "dest_city": "MCO"}, {"ORIGIN_AIRPORT": "SFO", "DESTINATION_AIRPORT": "LAS", "total": 7995, "on_time": 6346, "avg_arr_delay": 6.29, "on_time_pct": 79.87, "origin_city": "San Francisco", "dest_city": "Las Vegas"}, {"ORIGIN_AIRPORT": "ORD", "DESTINATION_AIRPORT": "LAX", "total": 7941, "on_time": 5705, "avg_arr_delay": 8.32, "on_time_pct": 72.9, "origin_city": "Chicago", "dest_city": "Los Angeles"}, {"ORIGIN_AIRPORT": "DFW", "DESTINATION_AIRPORT": "ORD", "total": 7870, "on_time": 5939, "avg_arr_delay": 6.97, "on_time_pct": 77.56, "origin_city": "Dallas-Fort Worth", "dest_city": "Chicago"}, {"ORIGIN_AIRPORT": "LAS", "DESTINATION_AIRPORT": "SFO", "total": 7870, "on_time": 5881, "avg_arr_delay": 9.77, "on_time_pct": 75.28, "origin_city": "Las Vegas", "dest_city": "San Francisco"}, {"ORIGIN_AIRPORT": "LAX", "DESTINATION_AIRPORT": "SEA", "total": 7732, "on_time": 6478, "avg_arr_delay": 1.49, "on_time_pct": 84.14, "origin_city": "Los Angeles", "dest_city": "SEA"}], "airport_coords": {"ATL": {"lat": 33.64044, "lon": -84.42694, "city": "Atlanta"}, "DEN": {"lat": 39.85841, "lon": -104.667, "city": "Denver"}, "DFW": {"lat": 32.89595, "lon": -97.0372, "city": "Dallas-Fort Worth"}, "IAH": {"lat": 29.98047, "lon": -95.33972, "city": "Houston"}, "LAS": {"lat": 36.08036, "lon": -115.15233, "city": "Las Vegas"}, "LAX": {"lat": 33.94254, "lon": -118.40807, "city": "Los Angeles"}, "MSP": {"lat": 44.88055, "lon": -93.21692, "city": "Minneapolis"}, "ORD": {"lat": 41.9796, "lon": -87.90446, "city": "Chicago"}, "PHX": {"lat": 33.43417, "lon": -112.00806, "city": "Phoenix"}, "SFO": {"lat": 37.619, "lon": -122.37484, "city": "San Francisco"}}};
+
+document.getElementById('genDate').textContent = new Date().toISOString().slice(0,10);
+
+/* ===================== I18N ===================== */
+let LANG = 'ar';
+const TR = {
+  title:      {ar:'مركز عمليات الرحلات الجوية', en:'Flight Operations Command Center'},
+  radarTitle: {ar:'خريطة رادار المحاور الجوية العشرة', en:'Ten-Hub Traffic Radar Map'},
+  radarHint:  {ar:'حجم النقطة = عدد الرحلات · لون النقطة = نسبة الالتزام بالمواعيد · الخطوط = أعلى المسارات ازدحاماً', en:'Dot size = flight volume · Dot color = on-time rate · Lines = busiest corridors'},
+  statusTitle:{ar:'توزيع حالة الرحلات', en:'Flight Status Breakdown'},
+  monthlyTitle:{ar:'اتجاه الالتزام بالمواعيد شهرياً', en:'Monthly On-Time Performance Trend'},
+  causesTitle:{ar:'توزيع أسباب دقائق التأخير', en:'Delay Minutes by Root Cause'},
+  airlineTitle:{ar:'ترتيب شركات الطيران حسب نسبة الالتزام بالمواعيد', en:'Carrier Ranking by On-Time Performance'},
+  airlineHint:{ar:'اضغط على أي شركة طيران لعرض تفاصيلها الكاملة', en:'Click any carrier to view full details'},
+  dowTitle:   {ar:'الأداء حسب يوم الأسبوع', en:'Performance by Day of Week'},
+  hourTitle:  {ar:'التأخير حسب ساعة الإقلاع', en:'Delay by Departure Hour'},
+  distTitle:  {ar:'الأداء حسب طول الرحلة', en:'Performance by Flight Distance'},
+  routesTitle:{ar:'أكثر المسارات ازدحاماً بالرحلات', en:'Busiest Flight Corridors'},
+  cancelTitle:{ar:'أسباب إلغاء الرحلات', en:'Cancellation Drivers'},
+  insightsTitle:{ar:'أبرز المؤشرات التنفيذية', en:'Key Executive Insights'},
+  actionsTitle:{ar:'توصيات تشغيلية مقترحة', en:'Recommended Operational Actions'},
+  thRoute:    {ar:'المسار', en:'Route'},
+  thFlights:  {ar:'عدد الرحلات', en:'Flights'},
+  thOnTime:   {ar:'الالتزام بالمواعيد', en:'On-Time'},
+  thDelay:    {ar:'متوسط تأخير الوصول', en:'Avg Arrival Delay'},
+  footer:     {ar:'المصدر: بيانات الرحلات الجوية الأمريكية 2015 (10 مطارات محورية) · لا تتوفر بيانات لشهر أكتوبر ضمن المجموعة', en:'Source: US Domestic Flight Data 2015 (10 hub airports) · October data not available in this dataset'},
+};
+function applyStaticText(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.dataset.i18n;
+    if(TR[key]) el.textContent = TR[key][LANG];
+  });
+  document.getElementById('langToggleLabel').textContent = LANG==='ar' ? 'English' : 'عربي';
+  document.getElementById('htmlRoot').setAttribute('lang', LANG);
+  document.body.classList.toggle('lang-en', LANG==='en');
+}
+
+document.getElementById('langToggle').addEventListener('click', ()=>{
+  LANG = LANG==='ar' ? 'en' : 'ar';
+  applyStaticText();
+  renderAll();
+});
+
+const tooltip = document.getElementById('tooltip');
+function showTip(html, x, y){
+  tooltip.innerHTML = html;
+  tooltip.style.left = (x+16)+'px';
+  tooltip.style.top = (y+16)+'px';
+  tooltip.classList.add('show');
+}
+function hideTip(){ tooltip.classList.remove('show'); }
+
+function colorForOnTime(pct, lo, hi){
+  const t = Math.max(0, Math.min(1, (pct-lo)/(hi-lo)));
+  const stops = [
+    [240,69,92],   // red
+    [245,165,36],  // amber
+    [47,224,196]   // teal
+  ];
+  let seg = t*2, i = Math.min(1, Math.floor(seg)), f = seg-i;
+  const a = stops[i], b = stops[i+1];
+  const r = Math.round(a[0]+(b[0]-a[0])*f);
+  const g = Math.round(a[1]+(b[1]-a[1])*f);
+  const bl = Math.round(a[2]+(b[2]-a[2])*f);
+  return `rgb(${r},${g},${bl})`;
+}
+
+/* ===================== KPI BOARD ===================== */
+function renderKPIs(){
+  const k = DATA.kpis;
+  const kpiLabels = LANG==='ar'
+    ? ['إجمالي الرحلات','الالتزام بالمواعيد (المكتملة)','متأخرة (المكتملة)','ملغاة (المجدولة)','محوّلة (المجدولة)','متوسط تأخير الوصول']
+    : ['TOTAL FLIGHTS','ON-TIME % (COMPLETED)','DELAYED % (COMPLETED)','CANCELLED % (SCHEDULED)','DIVERTED % (SCHEDULED)','AVG ARRIVAL DELAY'];
+  const cells = [
+    {cls:'', val:k.total_flights.toLocaleString('en-US'), unit:''},
+    {cls:'on-time', val:k.on_time_pct, unit:'%'},
+    {cls:'delayed', val:k.delayed_pct, unit:'%'},
+    {cls:'cancelled', val:k.cancelled_pct, unit:'%'},
+    {cls:'diverted', val:k.diverted_pct, unit:'%'},
+    {cls:'delayed', val:k.avg_arr_delay, unit:' min'},
+  ];
+  document.getElementById('pill-total').textContent = k.total_flights.toLocaleString('en-US')+' FLIGHTS TRACKED';
+  const board = document.getElementById('kpiBoard');
+  board.innerHTML = cells.map((c,i)=>`
+    <div class="kpi-cell ${c.cls}">
+      <div class="lbl ${LANG==='ar'?'ar':''}">${kpiLabels[i]}</div>
+      <div class="val">${c.val}<small>${c.unit}</small></div>
+    </div>
+  `).join('');
+}
+
+/* ===================== RADAR OPS MAP ===================== */
+function renderRadar(){
+  const origins = DATA.origin;
+  const coords = DATA.airport_coords;
+  const lons = Object.values(coords).map(c=>c.lon);
+  const lats = Object.values(coords).map(c=>c.lat);
+  const lonMin = Math.min(...lons), lonMax = Math.max(...lons);
+  const latMin = Math.min(...lats), latMax = Math.max(...lats);
+  const size = 520, cx = size/2, cy = size/2, R = size/2 - 30;
+  const scale = 0.62;
+
+  function project(code){
+    const c = coords[code];
+    const nx = (c.lon - lonMin)/(lonMax-lonMin);
+    const ny = 1 - (c.lat - latMin)/(latMax-latMin);
+    return [cx + (nx-0.5)*2*R*scale, cy + (ny-0.5)*2*R*scale];
+  }
+
+  const otVals = origins.map(o=>o.on_time_pct);
+  const otMin = Math.min(...otVals), otMax = Math.max(...otVals);
+  const volMax = Math.max(...origins.map(o=>o.total));
+
+  const routes = DATA.routes.filter(r => coords[r.ORIGIN_AIRPORT] && coords[r.DESTINATION_AIRPORT]);
+  const routeMax = Math.max(...routes.map(r=>r.total));
+
+  let rings = '';
+  [0.34,0.62,0.9].forEach(f=>{ rings += `<circle cx="${cx}" cy="${cy}" r="${R*f}" fill="none" stroke="rgba(47,224,196,0.10)" stroke-width="1"/>`; });
+  rings += `<line x1="${cx-R*0.92}" y1="${cy}" x2="${cx+R*0.92}" y2="${cy}" stroke="rgba(47,224,196,0.06)"/>`;
+  rings += `<line x1="${cx}" y1="${cy-R*0.92}" x2="${cx}" y2="${cy+R*0.92}" stroke="rgba(47,224,196,0.06)"/>`;
+
+  let arcs = '';
+  routes.forEach((r,idx)=>{
+    const [x1,y1] = project(r.ORIGIN_AIRPORT);
+    const [x2,y2] = project(r.DESTINATION_AIRPORT);
+    const mx = (x1+x2)/2, my = (y1+y2)/2 - 18;
+    const w = 0.6 + (r.total/routeMax)*2.2;
+    arcs += `<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" fill="none" stroke="var(--blue)" stroke-width="${w.toFixed(2)}" opacity="0.28" stroke-dasharray="4 5" class="flow-path"/>`;
+  });
+
+  let dots = '';
+  origins.forEach(o=>{
+    const [x,y] = project(o.ORIGIN_AIRPORT);
+    const r = 7 + Math.sqrt(o.total/volMax)*18;
+    const color = colorForOnTime(o.on_time_pct, otMin, otMax);
+    dots += `<g class="airport-dot" data-code="${o.ORIGIN_AIRPORT}" data-city="${o.city}" data-total="${o.total}" data-ot="${o.on_time_pct}" data-delay="${o.avg_arr_delay}" style="cursor:pointer;">
+      <circle cx="${x}" cy="${y}" r="${(r+7).toFixed(1)}" fill="${color}" opacity="0.12"/>
+      <circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="${color}" opacity="0.85" stroke="#020604" stroke-width="1.5"/>
+      <text x="${x}" y="${y+r+13}" text-anchor="middle" class="axis-label" fill="var(--text)" font-weight="600" font-size="10.5">${o.ORIGIN_AIRPORT}</text>
+    </g>`;
+  });
+
+  const svg = `<svg viewBox="0 0 ${size} ${size}" width="100%" height="100%">
+    ${rings}
+    ${arcs}
+    ${dots}
+  </svg>`;
+
+  const scope = document.getElementById('radarScope');
+  scope.innerHTML = `<div class="radar-sweep"></div>` + svg;
+
+  const tipLabel = LANG==='ar' ? {flights:'الرحلات', ontime:'الالتزام', delay:'متوسط تأخير الوصول'} : {flights:'Flights', ontime:'On-Time', delay:'Avg Arr Delay'};
+  scope.querySelectorAll('.airport-dot').forEach(el=>{
+    el.addEventListener('mousemove', (e)=>{
+      showTip(`<div class="t-title">${el.dataset.code} · ${el.dataset.city}</div>
+        <div class="t-row"><span>${tipLabel.flights}</span><b>${Number(el.dataset.total).toLocaleString('en-US')}</b></div>
+        <div class="t-row"><span>${tipLabel.ontime}</span><b>${el.dataset.ot}%</b></div>
+        <div class="t-row"><span>${tipLabel.delay}</span><b>${el.dataset.delay} min</b></div>`, e.clientX, e.clientY);
+    });
+    el.addEventListener('mouseleave', hideTip);
+  });
+}
+
+/* ===================== STATUS DONUT ===================== */
+function renderStatusDonut(){
+  const k = DATA.kpis;
+  const segs = [
+    {value:k.share_on_time, color:'var(--teal)', ar:'في الموعد', en:'On Time'},
+    {value:k.share_delayed, color:'var(--amber)', ar:'متأخرة', en:'Delayed'},
+    {value:k.share_cancelled, color:'var(--red)', ar:'ملغاة', en:'Cancelled'},
+    {value:k.share_diverted, color:'var(--blue)', ar:'محوّلة', en:'Diverted'},
+  ];
+  const size = 240, cx=size/2, cy=size/2, r=88, sw=26;
+  const circ = 2*Math.PI*r;
+  let offset = 0;
+  let paths = '';
+  segs.forEach(s=>{
+    const len = (s.value/100)*circ;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}"
+      stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"
+      stroke-linecap="butt" class="donut-seg"/>`;
+    offset += len;
+  });
+  const otLabel = LANG==='ar' ? 'الالتزام بالمواعيد' : 'ON-TIME';
+  const svg = `<svg viewBox="0 0 ${size} ${size}" width="240" height="240">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--panel-2)" stroke-width="${sw}"/>
+    ${paths}
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="var(--text)" font-family="IBM Plex Mono" font-size="30" font-weight="600">${k.on_time_pct}%</text>
+    <text x="${cx}" y="${cy+16}" text-anchor="middle" fill="var(--text-dim)" font-family="IBM Plex Mono" font-size="9.5">${otLabel}</text>
+  </svg>`;
+  document.getElementById('statusDonut').innerHTML = svg;
+
+  const legend = document.getElementById('statusLegend');
+  legend.innerHTML = segs.map(s=>`
+    <div class="status-row">
+      <span class="sw" style="background:${s.color}"></span>
+      <span class="name ${LANG==='ar'?'ar':''}">${s[LANG]}</span>
+      <span class="amt">${s.value}%</span>
+    </div>
+  `).join('');
+}
+
+/* ===================== MONTHLY LINE CHART ===================== */
+function renderMonthly(){
+  const rows = DATA.monthly;
+  const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const W = 780, H = 220, padL = 40, padR = 16, padT = 16, padB = 30;
+  const innerW = W-padL-padR, innerH = H-padT-padB;
+  const vals = rows.map(r=>r.on_time_pct);
+  const vMin = Math.floor(Math.min(...vals)-3), vMax = Math.ceil(Math.max(...vals)+3);
+
+  function xAt(i){ return padL + (i/(rows.length-1))*innerW; }
+  function yAt(v){ return padT + innerH - ((v-vMin)/(vMax-vMin))*innerH; }
+
+  let gridLines = '';
+  const ticks = 4;
+  for(let t=0;t<=ticks;t++){
+    const v = vMin + (vMax-vMin)*t/ticks;
+    const y = yAt(v);
+    gridLines += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" class="grid-line"/>
+      <text x="${padL-8}" y="${y+3}" text-anchor="end" class="axis-label">${v.toFixed(0)}%</text>`;
+  }
+
+  let pathD = '';
+  rows.forEach((r,i)=>{
+    const x = xAt(i), y = yAt(r.on_time_pct);
+    pathD += (i===0?'M':'L')+x+','+y+' ';
+  });
+  const areaD = pathD + `L${xAt(rows.length-1)},${padT+innerH} L${xAt(0)},${padT+innerH} Z`;
+
+  let dots = '';
+  let xLabels = '';
+  rows.forEach((r,i)=>{
+    const x = xAt(i), y = yAt(r.on_time_pct);
+    dots += `<circle cx="${x}" cy="${y}" r="4" fill="var(--teal)" stroke="#020604" stroke-width="1.5" class="m-dot"
+      data-month="${monthNames[r.MONTH]}" data-ot="${r.on_time_pct}" data-total="${r.total}" data-delay="${r.avg_arr_delay}"/>`;
+    xLabels += `<text x="${x}" y="${H-8}" text-anchor="middle" class="axis-label">${monthNames[r.MONTH]}</text>`;
+  });
+
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+    <defs>
+      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--teal)" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="var(--teal)" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${gridLines}
+    <path d="${areaD}" fill="url(#areaGrad)"/>
+    <path d="${pathD}" fill="none" stroke="var(--teal)" stroke-width="2.2"/>
+    ${dots}
+    ${xLabels}
+  </svg>`;
+  document.getElementById('monthlyChart').innerHTML = svg;
+
+  const tipLabel = LANG==='ar' ? {ontime:'الالتزام', flights:'الرحلات', delay:'متوسط تأخير الوصول'} : {ontime:'On-Time', flights:'Flights', delay:'Avg Arr Delay'};
+  document.querySelectorAll('.m-dot').forEach(el=>{
+    el.addEventListener('mousemove', (e)=>{
+      showTip(`<div class="t-title">${el.dataset.month} 2015</div>
+        <div class="t-row"><span>${tipLabel.ontime}</span><b>${el.dataset.ot}%</b></div>
+        <div class="t-row"><span>${tipLabel.flights}</span><b>${Number(el.dataset.total).toLocaleString('en-US')}</b></div>
+        <div class="t-row"><span>${tipLabel.delay}</span><b>${el.dataset.delay} min</b></div>`, e.clientX, e.clientY);
+    });
+    el.addEventListener('mouseleave', hideTip);
+  });
+}
+
+/* ===================== CAUSES CHART ===================== */
+const causeNames = {
+  'Late Aircraft': {ar:'تأخر الطائرة القادمة', en:'Late Aircraft'},
+  'Airline':       {ar:'شركة الطيران', en:'Airline Carrier'},
+  'Air System':    {ar:'نظام الملاحة الجوية', en:'Air System'},
+  'Weather':       {ar:'الطقس', en:'Weather'},
+  'Security':      {ar:'الأمن', en:'Security'},
+};
+function renderCauses(){
+  const pct = DATA.causes_pct;
+  const order = ['Late Aircraft','Airline','Air System','Weather','Security'];
+  const colors = {'Late Aircraft':'var(--red)','Airline':'var(--amber)','Air System':'var(--blue)','Weather':'var(--teal)','Security':'var(--text-faint)'};
+  const max = Math.max(...order.map(k=>pct[k]));
+
+  let html = '<div style="display:flex; flex-direction:column; gap:14px; padding-top:4px;">';
+  order.forEach(k=>{
+    const w = (pct[k]/max)*100;
+    html += `
+      <div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+          <span style="font-size:11.5px; color:var(--text-dim);" class="${LANG==='ar'?'ar':''}">${causeNames[k][LANG]}</span>
+          <span class="num" style="font-size:11.5px; color:var(--text);">${pct[k]}%</span>
+        </div>
+        <div style="height:8px; background:var(--panel-2); border-radius:5px; overflow:hidden; border:1px solid var(--border-soft);">
+          <div style="width:${w}%; height:100%; background:${colors[k]}; border-radius:5px;"></div>
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  document.getElementById('causesChart').innerHTML = html;
+}
+
+/* ===================== AIRLINE SCORECARD ===================== */
+let selectedAirline = null;
+function renderAirlines(){
+  const rows = [...DATA.airline].sort((a,b)=>b.on_time_pct-a.on_time_pct);
+  const container = document.getElementById('airlineChart');
+  container.innerHTML = rows.map((r,i)=>{
+    const color = colorForOnTime(r.on_time_pct, 60, 90);
+    return `<div class="bar-row" data-code="${r.AIRLINE}">
+      <div class="rank num">${i+1}</div>
+      <div class="name">${r.AIRLINE} — ${r.name}</div>
+      <div class="track"><div class="fill" style="width:${r.on_time_pct}%; background:${color};"></div></div>
+      <div class="val num">${r.on_time_pct}%</div>
+      <div class="sub num">${r.avg_arr_delay}m avg</div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.bar-row').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      selectedAirline = el.dataset.code === selectedAirline ? null : el.dataset.code;
+      container.querySelectorAll('.bar-row').forEach(x=>x.classList.toggle('selected', x.dataset.code===selectedAirline));
+      renderAirlineDetail();
+    });
+  });
+  renderAirlineDetail();
+}
+function renderAirlineDetail(){
+  const box = document.getElementById('airlineDetail');
+  if(!selectedAirline){ box.style.display='none'; return; }
+  const r = DATA.airline.find(a=>a.AIRLINE===selectedAirline);
+  const labels = LANG==='ar'
+    ? {carrier:'الناقل', total:'إجمالي الرحلات', ontime:'الالتزام بالمواعيد', cancelled:'نسبة الإلغاء', dep:'متوسط تأخير الإقلاع', arr:'متوسط تأخير الوصول', delayed:'رحلات متأخرة', diverted:'رحلات محوّلة'}
+    : {carrier:'CARRIER', total:'TOTAL FLIGHTS', ontime:'ON-TIME %', cancelled:'CANCELLED %', dep:'AVG DEP DELAY', arr:'AVG ARR DELAY', delayed:'DELAYED FLIGHTS', diverted:'DIVERTED'};
+  box.style.display='grid';
+  box.innerHTML = `
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.carrier}</div><div class="v" style="font-size:14px;">${r.AIRLINE} · ${r.name}</div></div>
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.total}</div><div class="v">${r.total.toLocaleString('en-US')}</div></div>
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.ontime}</div><div class="v" style="color:var(--teal)">${r.on_time_pct}%</div></div>
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.cancelled}</div><div class="v" style="color:var(--red)">${r.cancelled_pct}%</div></div>
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.dep}</div><div class="v" style="color:var(--amber)">${r.avg_dep_delay} min</div></div>
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.arr}</div><div class="v" style="color:var(--amber)">${r.avg_arr_delay} min</div></div>
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.delayed}</div><div class="v">${r.delayed.toLocaleString('en-US')}</div></div>
+    <div class="d-item"><div class="l ${LANG==='ar'?'ar':''}">${labels.diverted}</div><div class="v">${r.diverted.toLocaleString('en-US')}</div></div>
+  `;
+}
+
+/* ===================== DOW CHART ===================== */
+const dowNames = {
+  Mon:{ar:'الاثنين', en:'Monday'}, Tue:{ar:'الثلاثاء', en:'Tuesday'}, Wed:{ar:'الأربعاء', en:'Wednesday'},
+  Thu:{ar:'الخميس', en:'Thursday'}, Fri:{ar:'الجمعة', en:'Friday'}, Sat:{ar:'السبت', en:'Saturday'}, Sun:{ar:'الأحد', en:'Sunday'},
+};
+function renderDOW(){
+  const rows = DATA.dow;
+  const max = Math.max(...rows.map(r=>r.on_time_pct));
+  const min = Math.min(...rows.map(r=>r.on_time_pct));
+  const W=340,H=200,padB=28,padT=10,barW=30,gap=12;
+  let bars='';
+  rows.forEach((r,i)=>{
+    const x = 8 + i*(barW+gap);
+    const h = ((r.on_time_pct-60)/(90-60))*(H-padB-padT);
+    const y = H-padB-h;
+    const color = colorForOnTime(r.on_time_pct, min, max);
+    bars += `<g class="dow-bar" data-day="${dowNames[r.day_name][LANG]}" data-ot="${r.on_time_pct}" data-delay="${r.avg_arr_delay}" data-total="${r.total}">
+      <rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${color}" opacity="0.85"/>
+      <text x="${x+barW/2}" y="${H-padB+16}" text-anchor="middle" class="axis-label">${r.day_name}</text>
+    </g>`;
+  });
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${bars}</svg>`;
+  document.getElementById('dowChart').innerHTML = svg;
+  const tipLabel = LANG==='ar' ? {ontime:'الالتزام', flights:'الرحلات'} : {ontime:'On-Time', flights:'Flights'};
+  document.querySelectorAll('.dow-bar').forEach(el=>{
+    el.addEventListener('mousemove',(e)=>{
+      showTip(`<div class="t-title ${LANG==='ar'?'ar':''}">${el.dataset.day}</div>
+        <div class="t-row"><span>${tipLabel.ontime}</span><b>${el.dataset.ot}%</b></div>
+        <div class="t-row"><span>${tipLabel.flights}</span><b>${Number(el.dataset.total).toLocaleString('en-US')}</b></div>`, e.clientX, e.clientY);
+    });
+    el.addEventListener('mouseleave', hideTip);
+  });
+}
+
+/* ===================== HOURLY CHART ===================== */
+let hourMode = 'delay';
+function renderHourly(){
+  const rows = DATA.hour;
+  const W=340,H=200,padL=30,padR=10,padT=12,padB=26;
+  const innerW=W-padL-padR, innerH=H-padT-padB;
+  const vals = rows.map(r=> hourMode==='delay'? r.avg_dep_delay : r.on_time_pct);
+  const vMin = Math.min(...vals)-1, vMax = Math.max(...vals)+1;
+  function xAt(i){ return padL + (i/(rows.length-1))*innerW; }
+  function yAt(v){ return padT + innerH - ((v-vMin)/(vMax-vMin))*innerH; }
+  let path='';
+  rows.forEach((r,i)=>{
+    const v = hourMode==='delay'? r.avg_dep_delay : r.on_time_pct;
+    const x=xAt(i), y=yAt(v);
+    path += (i===0?'M':'L')+x+','+y+' ';
+  });
+  const color = hourMode==='delay' ? 'var(--amber)' : 'var(--teal)';
+  let dots='';
+  rows.forEach((r,i)=>{
+    const v = hourMode==='delay'? r.avg_dep_delay : r.on_time_pct;
+    const x=xAt(i), y=yAt(v);
+    dots += `<circle cx="${x}" cy="${y}" r="2.6" fill="${color}" class="h-dot" data-hr="${r['Departure Hour']}" data-v="${v}"/>`;
+  });
+  let xlab='';
+  [0,6,12,18].forEach(h=>{
+    const idx = rows.findIndex(r=>r['Departure Hour']===h);
+    if(idx>=0) xlab += `<text x="${xAt(idx)}" y="${H-8}" text-anchor="middle" class="axis-label">${h}:00</text>`;
+  });
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="2"/>
+    ${dots}${xlab}
+  </svg>`;
+  document.getElementById('hourChart').innerHTML = svg;
+  const dlabel = LANG==='ar' ? {delay:'متوسط التأخير', ontime:'الالتزام'} : {delay:'Avg Delay', ontime:'On-Time'};
+  document.querySelectorAll('.h-dot').forEach(el=>{
+    el.addEventListener('mousemove',(e)=>{
+      const unit = hourMode==='delay' ? ' min' : '%';
+      showTip(`<div class="t-title">${el.dataset.hr}:00</div>
+        <div class="t-row"><span>${hourMode==='delay'?dlabel.delay:dlabel.ontime}</span><b>${el.dataset.v}${unit}</b></div>`, e.clientX, e.clientY);
+    });
+    el.addEventListener('mouseleave', hideTip);
+  });
+}
+document.getElementById('hourToggle').addEventListener('click',(e)=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  hourMode = btn.dataset.m;
+  [...document.querySelectorAll('#hourToggle button')].forEach(b=>b.classList.toggle('active', b===btn));
+  renderHourly();
+});
+
+/* ===================== DISTANCE CHART ===================== */
+const distNames = {
+  'Short Haul': {ar:'رحلات قصيرة', en:'Short Haul'},
+  'Medium Haul':{ar:'رحلات متوسطة', en:'Medium Haul'},
+  'Long Haul':  {ar:'رحلات طويلة', en:'Long Haul'},
+};
+function renderDistance(){
+  const rows = DATA.distance;
+  let html = '<div style="display:flex; flex-direction:column; gap:16px; padding-top:6px;">';
+  rows.forEach(r=>{
+    const color = colorForOnTime(r.on_time_pct, 74, 84);
+    html += `<div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+        <span style="font-size:11.5px; color:var(--text-dim);" class="${LANG==='ar'?'ar':''}">${distNames[r['Distance Band']][LANG]} <span style="opacity:.6">(${r.avg_distance} mi)</span></span>
+        <span class="num" style="font-size:11.5px; color:var(--text);">${r.on_time_pct}%</span>
+      </div>
+      <div style="height:8px; background:var(--panel-2); border-radius:5px; overflow:hidden; border:1px solid var(--border-soft);">
+        <div style="width:${r.on_time_pct}%; height:100%; background:${color}; border-radius:5px;"></div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('distChart').innerHTML = html;
+}
+
+/* ===================== ROUTES TABLE ===================== */
+function renderRoutes(){
+  const rows = DATA.routes.slice(0,10);
+  const max = Math.max(...rows.map(r=>r.total));
+  const body = document.getElementById('routesBody');
+  body.innerHTML = rows.map(r=>{
+    const color = colorForOnTime(r.on_time_pct, 65, 90);
+    return `<tr>
+      <td class="route">${r.ORIGIN_AIRPORT} → ${r.DESTINATION_AIRPORT}</td>
+      <td class="num">${r.total.toLocaleString('en-US')}<span class="mini-bar"><i style="width:${(r.total/max)*100}%; background:var(--blue);"></i></span></td>
+      <td class="num" style="color:${color}">${r.on_time_pct}%</td>
+      <td class="num">${r.avg_arr_delay} min</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ===================== CANCEL CHART ===================== */
+const cancelNames = {
+  'Weather':{ar:'الطقس', en:'Weather'},
+  'Airline/Carrier':{ar:'شركة الطيران', en:'Airline/Carrier'},
+  'National Air System':{ar:'نظام الملاحة الوطني', en:'National Air System'},
+  'Security':{ar:'الأمن', en:'Security'},
+};
+function renderCancel(){
+  const rows = [...DATA.cancel_reason].sort((a,b)=>b.count-a.count);
+  const colorMap = {'Weather':'var(--teal)','Airline/Carrier':'var(--amber)','National Air System':'var(--blue)','Security':'var(--red)'};
+  const total = rows.reduce((s,r)=>s+r.count,0);
+  const max = Math.max(...rows.map(r=>r.count));
+  let html = '<div style="display:flex; flex-direction:column; gap:13px; padding-top:4px;">';
+  rows.forEach(r=>{
+    const pct = (r.count/total*100).toFixed(1);
+    const desc = cancelNames[r.desc] ? cancelNames[r.desc][LANG] : r.desc;
+    html += `<div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+        <span style="font-size:11.5px; color:var(--text-dim);" class="${LANG==='ar'?'ar':''}">${desc}</span>
+        <span class="num" style="font-size:11.5px; color:var(--text);">${r.count.toLocaleString('en-US')} · ${pct}%</span>
+      </div>
+      <div style="height:8px; background:var(--panel-2); border-radius:5px; overflow:hidden; border:1px solid var(--border-soft);">
+        <div style="width:${(r.count/max)*100}%; height:100%; background:${colorMap[r.desc]||'var(--text-faint)'}; border-radius:5px;"></div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('cancelChart').innerHTML = html;
+}
+
+/* ===================== INSIGHTS & ACTIONS ===================== */
+function renderInsights(){
+  const iconCheck = `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>`;
+  const iconWarn = `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17" r="0.6" fill="var(--amber)"/></svg>`;
+  const iconAlert = `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16" r="0.6" fill="var(--red)"/></svg>`;
+
+  const best = [...DATA.airline].sort((a,b)=>b.on_time_pct-a.on_time_pct)[0];
+  const worst = [...DATA.airline].sort((a,b)=>a.on_time_pct-b.on_time_pct)[0];
+  const bestHub = [...DATA.origin].sort((a,b)=>b.on_time_pct-a.on_time_pct)[0];
+  const worstHub = [...DATA.origin].sort((a,b)=>a.on_time_pct-b.on_time_pct)[0];
+  const bestDow = [...DATA.dow].sort((a,b)=>b.on_time_pct-a.on_time_pct)[0];
+  const worstDow = [...DATA.dow].sort((a,b)=>a.on_time_pct-b.on_time_pct)[0];
+
+  const insightsAr = [
+    {icon:iconCheck, html:`أفضل أداء بين الناقلين: <b>${best.name} (${best.AIRLINE})</b> بنسبة التزام <b>${best.on_time_pct}%</b> ومتوسط تأخير وصول <b>${best.avg_arr_delay} دقيقة</b> فقط.`},
+    {icon:iconAlert, html:`الأضعف أداءً: <b>${worst.name} (${worst.AIRLINE})</b> بنسبة التزام <b>${worst.on_time_pct}%</b> فقط، ومتوسط تأخير <b>${worst.avg_arr_delay} دقيقة</b>.`},
+    {icon:iconWarn, html:`السبب الأكبر للتأخير هو <b>تأخر الطائرة القادمة (Late Aircraft)</b> بنسبة <b>${DATA.causes_pct['Late Aircraft']}%</b> من إجمالي دقائق التأخير، يليه تأخير شركة الطيران نفسها بنسبة <b>${DATA.causes_pct['Airline']}%</b>.`},
+    {icon:iconWarn, html:`نسبة الالتزام تنخفض بشكل واضح بين الساعة <b>18:00 و21:00</b> نتيجة تراكم التأخيرات على مدار اليوم — فترة ذروة تشغيلية حرجة.`},
+    {icon:iconCheck, html:`مطار <b>${bestHub.city} (${bestHub.ORIGIN_AIRPORT})</b> هو الأعلى التزاماً بين المحاور بنسبة <b>${bestHub.on_time_pct}%</b>، مقابل <b>${worstHub.city} (${worstHub.ORIGIN_AIRPORT})</b> بأدنى نسبة <b>${worstHub.on_time_pct}%</b>.`},
+    {icon:iconCheck, html:`يوم <b>السبت</b> هو الأفضل أداءً بنسبة التزام <b>${bestDow.on_time_pct}%</b>، بينما يوم <b>${dowNames[worstDow.day_name].ar}</b> الأضعف بنسبة <b>${worstDow.on_time_pct}%</b>.`},
+  ];
+  const insightsEn = [
+    {icon:iconCheck, html:`Top-performing carrier: <b>${best.name} (${best.AIRLINE})</b> with an on-time rate of <b>${best.on_time_pct}%</b> and an average arrival delay of just <b>${best.avg_arr_delay} min</b>.`},
+    {icon:iconAlert, html:`Weakest performer: <b>${worst.name} (${worst.AIRLINE})</b> at only <b>${worst.on_time_pct}%</b> on-time, with an average delay of <b>${worst.avg_arr_delay} min</b>.`},
+    {icon:iconWarn, html:`The largest driver of delay minutes is <b>Late Aircraft</b> at <b>${DATA.causes_pct['Late Aircraft']}%</b> of total delay minutes, followed by <b>Airline-caused delay</b> at <b>${DATA.causes_pct['Airline']}%</b>.`},
+    {icon:iconWarn, html:`On-time performance drops sharply between <b>18:00 and 21:00</b> as delays compound through the day — a critical operational peak window.`},
+    {icon:iconCheck, html:`<b>${bestHub.city} (${bestHub.ORIGIN_AIRPORT})</b> is the top-performing hub at <b>${bestHub.on_time_pct}%</b> on-time, versus <b>${worstHub.city} (${worstHub.ORIGIN_AIRPORT})</b> at the lowest, <b>${worstHub.on_time_pct}%</b>.`},
+    {icon:iconCheck, html:`<b>Saturday</b> is the strongest day at <b>${bestDow.on_time_pct}%</b> on-time, while <b>${dowNames[worstDow.day_name].en}</b> is the weakest at <b>${worstDow.on_time_pct}%</b>.`},
+  ];
+  const insights = LANG==='ar' ? insightsAr : insightsEn;
+  document.getElementById('insightsList').innerHTML = insights.map(i=>`<div class="insight">${i.icon}<div class="tx ${LANG==='ar'?'ar':''}">${i.html}</div></div>`).join('');
+
+  const actionsAr = [
+    {icon:iconWarn, html:`إعادة توزيع أطقم التشغيل والصيانة في <b>مطار شيكاغو (ORD)</b> خلال نافذة الذروة المسائية (18:00–21:00) لكسر سلسلة التأخير المتتالي.`},
+    {icon:iconWarn, html:`التركيز مع الناقلين ذوي الأداء الأضعف (<b>NK، F9، MQ</b>) على تقليص زمن استدارة الطائرة (Turnaround)، باعتبار "تأخر الطائرة القادمة" السبب الأول للتأخير.`},
+    {icon:iconAlert, html:`وضع خطط طوارئ تشغيلية لأشهر <b>يناير وفبراير</b> حيث تسجل أدنى نسب التزام في العام (${DATA.monthly[0].on_time_pct}% و${DATA.monthly[1].on_time_pct}%).`},
+    {icon:iconCheck, html:`تعميم ممارسات مطاري <b>MSP وATL</b> — الأعلى التزاماً — كنموذج تشغيلي مرجعي على باقي المحاور.`},
+    {icon:iconWarn, html:`مراجعة إجراءات الطقس الشتوي التشغيلية، إذ يمثل الطقس السبب الأول للإلغاء الكامل للرحلات (نحو 57% من حالات الإلغاء).`},
+  ];
+  const actionsEn = [
+    {icon:iconWarn, html:`Reallocate ground and maintenance crews at <b>Chicago O'Hare (ORD)</b> during the evening peak window (18:00–21:00) to break the chain-delay cycle.`},
+    {icon:iconWarn, html:`Work with the weakest-performing carriers (<b>NK, F9, MQ</b>) to reduce aircraft turnaround time, since "Late Aircraft" is the top cause of delay.`},
+    {icon:iconAlert, html:`Put winter contingency plans in place for <b>January and February</b>, which post the lowest on-time rates of the year (${DATA.monthly[0].on_time_pct}% and ${DATA.monthly[1].on_time_pct}%).`},
+    {icon:iconCheck, html:`Roll out <b>MSP and ATL</b> operating practices — the top-performing hubs — as a reference model across the network.`},
+    {icon:iconWarn, html:`Review winter weather operating procedures, as weather is the single largest driver of full flight cancellations (roughly 57% of all cancellations).`},
+  ];
+  const actions = LANG==='ar' ? actionsAr : actionsEn;
+  document.getElementById('actionsList').innerHTML = actions.map(i=>`<div class="insight">${i.icon}<div class="tx ${LANG==='ar'?'ar':''}">${i.html}</div></div>`).join('');
+}
+
+/* ===================== INIT ===================== */
+function renderAll(){
+  renderKPIs();
+  renderRadar();
+  renderStatusDonut();
+  renderMonthly();
+  renderCauses();
+  renderAirlines();
+  renderDOW();
+  renderHourly();
+  renderDistance();
+  renderRoutes();
+  renderCancel();
+  renderInsights();
+}
+applyStaticText();
+renderAll();
+</script>
+
+<script id="integrityGuard">
+/* ---------------------------------------------------------------------------
+   DATA INTEGRITY GUARD
+
+   The aggregates in this file were generated by code that carried its own copy
+   of the on-time rule, and that copy used `> 15` where the model uses `>= 15`.
+   The result: 14,206 flights classified as on-time that the model classifies as
+   delayed, in the project's most-viewed artefact.
+
+   The fix is not to edit the numbers by hand — that would just create a third
+   copy of the truth. The fix is scripts/build_dashboard.py, which imports the
+   one rule definition from scripts/flight_rules.py, recomputes every aggregate,
+   asserts the result against the published baselines, and only then writes.
+
+   This guard exists so a stale dashboard announces itself on its own face
+   instead of waiting to be caught in a meeting. It disappears the moment the
+   file is regenerated.
+   --------------------------------------------------------------------------- */
+(function(){
+  var EXPECTED = { total: 1949742, on_time_completed: 79.63 };
+  var m = (typeof DATA !== 'undefined') ? DATA._meta : null;
+  var k = (typeof DATA !== 'undefined') ? DATA.kpis  : null;
+  var problems = [];
+
+  if (!m) {
+    problems.push('لم تُولَّد هذه الأرقام بواسطة build_dashboard.py، فلا يمكن التحقق من قاعدة احتساب الالتزام.');
+  } else if (!m.baselines_ok) {
+    problems.push('آخر عملية توليد فشلت في اختبارات خطوط الأساس.');
+  } else if (m.delay_threshold !== 15) {
+    problems.push('عتبة التأخير ' + m.delay_threshold + ' والمتوقع 15 دقيقة (معيار US DOT).');
+  }
+
+  if (k) {
+    if (k.total_flights !== EXPECTED.total) {
+      problems.push('إجمالي الرحلات ' + k.total_flights.toLocaleString('en-US')
+        + ' والمتوقع ' + EXPECTED.total.toLocaleString('en-US') + '.');
+    }
+    if (typeof k.on_time_pct === 'number'
+        && Math.abs(k.on_time_pct - EXPECTED.on_time_completed) > 0.05) {
+      problems.push('نسبة الالتزام (على أساس الرحلات المكتملة) ' + k.on_time_pct
+        + '% والمتوقع ' + EXPECTED.on_time_completed + '%.');
+    }
+  }
+
+  if (!problems.length) return;
+
+  var bar = document.createElement('div');
+  bar.setAttribute('dir', 'rtl');
+  bar.style.cssText = 'position:sticky;top:0;z-index:9999;background:#8E1B1B;color:#fff;'
+    + 'padding:14px 22px;font-family:"IBM Plex Sans Arabic",sans-serif;font-size:13.5px;'
+    + 'line-height:1.75;border-bottom:3px solid #F0455C;';
+  bar.innerHTML = '<strong>&#9888; هذه اللوحة غير مُتحقَّق منها — لا تُنشر.</strong><br>'
+    + problems.map(function(p){ return '&middot; ' + p; }).join('<br>')
+    + '<br><span style="opacity:.85">أعد التوليد: '
+    + '<code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:3px;'
+    + 'direction:ltr;display:inline-block;font-family:\'IBM Plex Mono\',monospace">'
+    + 'python scripts/build_dashboard.py --data data/raw</code></span>';
+  document.body.insertBefore(bar, document.body.firstChild);
+})();
+</script>
+</body>
+</html>

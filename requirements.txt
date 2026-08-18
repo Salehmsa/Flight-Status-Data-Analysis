@@ -1,0 +1,9 @@
+# Python dependencies for the validation, sampling and dashboard-build scripts.
+#   pip install -r requirements.txt
+#
+# Deliberately minimal. Everything here runs on stock pandas; nothing in this
+# project needs a heavier stack, and a short dependency list is one fewer reason
+# for a clone to fail two years from now.
+
+pandas>=2.0
+numpy>=1.24

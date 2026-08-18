@@ -1,0 +1,75 @@
+# =============================================================================
+# LARGE DATA — never commit
+# -----------------------------------------------------------------------------
+# flights.csv is ~290 MB. GitHub warns at 50 MB and HARD BLOCKS at 100 MB.
+# A blocked push is recoverable; a 290 MB file that made it into history is not
+# (it stays in the pack forever and every future clone pays for it).
+# =============================================================================
+data/raw/
+data/raw/*
+*.csv
+
+# ...but the three small dimension files and the sample ARE committed.
+!data/reference/airlines.csv
+!data/reference/airports.csv
+!data/reference/cancellation_codes.csv
+!data/sample/flights_sample.csv
+
+# =============================================================================
+# POWER BI
+# -----------------------------------------------------------------------------
+# A PBIX with 1.9M imported rows is typically 60–120 MB and is a binary blob:
+# it cannot be diffed, cannot be merged, and every save adds a full new copy to
+# git history. Publish it as a GitHub Release asset instead, and keep the
+# reproducible source (M + DAX) under version control.
+#
+# If you must version the model, use PBIP / TMDL format (File > Save as > .pbip)
+# which is plain text and diffable. Then delete the two lines below.
+# =============================================================================
+*.pbix
+*.pbit
+
+# Power BI working files
+*.pbix.bak
+.pbi/
+*.tmp
+
+# =============================================================================
+# SECRETS — nothing in this project should need these, which is exactly why a
+# stray one must never slip through
+# =============================================================================
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+appsettings.*.json
+connectionstrings.json
+
+# =============================================================================
+# PYTHON
+# =============================================================================
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+out/
+
+# =============================================================================
+# OS / EDITOR
+# -----------------------------------------------------------------------------
+# .DS_Store and Thumbs.db in a public repo are a small, avoidable signal of
+# carelessness. desktop.ini matters here specifically: this project lives in a
+# OneDrive-synced folder and OneDrive writes those files constantly.
+# =============================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+*.lnk
+.vscode/
+.idea/
